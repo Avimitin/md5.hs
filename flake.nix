@@ -21,5 +21,12 @@
       {
         formatter = pkgs.nixpkgs-fmt;
         legacyPackages = pkgs;
+        devShells.default = with pkgs; mkShell {
+          nativeBuildInputs = [
+            haskell-language-server
+            cabal-install
+            cabal2nix
+          ];
+        };
       });
 }
