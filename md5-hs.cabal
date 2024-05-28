@@ -101,4 +101,6 @@ test-suite md5-hs-test
     -- Test dependencies.
     build-depends:
         base ^>=4.18.2.1,
-        md5-hs
+        md5-hs,
+        hspec == 2.11.*,
+    build-tool-depends: hspec-discover:hspec-discover == 2.*
