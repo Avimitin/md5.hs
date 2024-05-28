@@ -1,5 +1,6 @@
 module Md5 (initMd5, updateMD5, MD5Context (..)) where
 
+import Control.Exception
 import Data.Bits
 import Data.Word (Word32, Word8)
 
@@ -34,7 +35,7 @@ updateMD5 ctx _ 0 = ctx
 updateMD5 ctx input len =
     let
         MkMD5Context{reg = reg', nL = nL', nR = nR', buf = buf', num = num'} = ctx
-        (a : b : c : d : _) = reg'
+        (a : b : c : d : _) = assert (length reg' == 4) reg'
      in
         -- TODO: Update nL and nR
         MkMD5Context{reg = reg', nL = nL', nR = nR', buf = buf', num = num'}
@@ -63,3 +64,27 @@ fnH b c d = b .^. c .^. d
 {-# ANN fnI "HLint: ignore Redundant bracket" #-}
 fnI :: Word32 -> Word32 -> Word32 -> Word32
 fnI b c d = ((complement d) .|. b) .^. c
+
+{-# ANN round0 "HLint: ignore Redundant bracket" #-}
+round0 :: Word32 -> Word32 -> Word32 -> Word32 -> Word32 -> Int -> Word32 -> Word32
+round0 a b c d k s t =
+    let a' = rotate (k + t + (fnF b c d)) s
+     in a + a' + b
+
+{-# ANN round1 "HLint: ignore Redundant bracket" #-}
+round1 :: Word32 -> Word32 -> Word32 -> Word32 -> Word32 -> Int -> Word32 -> Word32
+round1 a b c d k s t =
+    let a' = rotate (k + t + (fnG b c d)) s
+     in a + a' + b
+
+{-# ANN round2 "HLint: ignore Redundant bracket" #-}
+round2 :: Word32 -> Word32 -> Word32 -> Word32 -> Word32 -> Int -> Word32 -> Word32
+round2 a b c d k s t =
+    let a' = rotate (k + t + (fnH b c d)) s
+     in a + a' + b
+
+{-# ANN round3 "HLint: ignore Redundant bracket" #-}
+round3 :: Word32 -> Word32 -> Word32 -> Word32 -> Word32 -> Int -> Word32 -> Word32
+round3 a b c d k s t =
+    let a' = rotate (k + t + (fnI b c d)) s
+     in a + a' + b
